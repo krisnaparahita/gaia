@@ -195,7 +195,8 @@ def interactive_mode(agent: ChatAgent):
                     # Auto-save before quitting
                     if agent.current_session:
                         print("\n💾 Saving current session...")
-                        agent.save_current_session()
+                        if not agent.save_current_session():
+                            print("❌ Failed to save session - conversation not saved")
                     print("Goodbye!")
                     break
 
@@ -326,8 +327,12 @@ def interactive_mode(agent: ChatAgent):
                 elif command == "/reset":
                     print("\n🔄 Resetting conversation...")
                     # Save current session first
-                    if agent.current_session:
-                        agent.save_current_session()
+                    if agent.current_session and not agent.save_current_session():
+                        print(
+                            "❌ Failed to save session - reset cancelled "
+                            "so the conversation is not lost"
+                        )
+                        continue
                     # Create new session
                     agent.current_session = agent.session_manager.create_session()
                     # Reset per-session tool activation (bundle state)
